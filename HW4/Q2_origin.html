@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Seconds</title>
+    <script src="https://d3js.org/d3.v4.min.js"> ></script>
+
+	</head>
+	<body>
+    <h3>Click here to update</h3>
+    
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 400;
+			var h = 400;
+    
+      var margin = {top: 25, right: 25, bottom: 25, left: 25};
+      var innerHeight = h - margin.top - margin.bottom;
+      var innerWidth = w - margin.left - margin.right; 
+        
+      var d = new Date();
+      var seconds = d.getSeconds();
+      
+      var dataset = d3.range(seconds)
+          .map( () => ({x: Math.floor(Math.random() * innerWidth),
+                        y: Math.floor(Math.random() * innerHeight)}) );
+        
+    // Create SVG element
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+        
+    // Add background rectangle
+        
+      
+    // Add initial circles
+        
+        
+    // General Update Pattern (triggered on click)
+        
+    
+		</script>
+	</body>
+</html>

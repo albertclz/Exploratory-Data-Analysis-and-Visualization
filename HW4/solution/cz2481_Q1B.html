@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Q1 Part B</title>
+    <script src="https://d3js.org/d3.v4.min.js">  </script>
+
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var w = 500;
+      var h = 300;
+      var margin = {top: 25, right: 25, bottom: 25, left: 25};
+      var innerHeight = h - margin.top - margin.bottom;
+      var innerWidth = w - margin.left - margin.right;
+
+      var dataset = [{letter: "A", amount: 34},
+                     {letter: "B", amount: 45},
+                     {letter: "C", amount: 14}];
+
+     // Don't change anything above this line.
+
+       
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+    var letter = ["A","B","C"]
+    var amount = [34,45,14] 
+
+    var xscale = d3.scaleLinear()
+                   .domain([0,d3.max(amount)] )
+                   .range([30, innerWidth]);
+
+    var yscale = d3.scaleBand()
+                   .domain(letter)
+                   .range([innerHeight, 0]);
+
+    var x_axis = d3.axisBottom()
+                   .scale(xscale);
+    svg.append("g")
+            .attr("transform", "translate(0, 280)")
+            .call(x_axis);
+
+    var y_axis = d3.axisLeft()
+                   .scale(yscale);
+    svg.append("g")
+            .attr("transform", "translate(30, 30)")
+            .call(y_axis);
+  
+
+  var lines = svg.selectAll("rect")
+      .data(letter);
+
+ lines.enter().append("rect")
+      .attr("x", "30")
+      .attr("y", d => yscale(d)+71)
+      .attr("width", 430)
+      .attr("height", 1)
+      .attr("fill", "lightgrey");
+
+  svg.selectAll("circle")
+      .data(dataset)
+      .enter().append("circle")
+      .attr("class", "circle")
+      .attr("r", 3)
+      .attr("cx", d => xscale(d.amount))
+      .attr("cy", d => yscale(d.letter)+71);
+
+        
+        
+</script>
+  </body>
+</html>

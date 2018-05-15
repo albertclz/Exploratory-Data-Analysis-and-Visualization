@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Q1 Part A</title>
+    <script src="https://d3js.org/d3.v4.min.js">  </script>
+
+  </head>
+
+  <body>
+    <script>
+      var w = 500;
+      var h = 300;
+      var margin = {top: 25, right: 25, bottom: 25, left: 25};
+      var innerHeight = h - margin.top - margin.bottom;
+      var innerWidth = w - margin.left - margin.right;
+
+      var dataset = d3.range(10).map( () => Math.random()*Math.random()*100);
+
+   
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+      var data = [30,55,80,105,130,155,180,205,230,255];
+
+      var lines = svg.selectAll("rect")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("x", "20")
+          .attr("y", d => d)
+          .attr("width", 430)
+          .attr("height", 1)
+          .attr("fill", "lightgrey");
+
+    var xscale = d3.scaleLinear()
+                   .domain([0, d3.max(dataset)])
+                   .range([20, innerWidth]);
+
+    var yscale = d3.scaleLinear()
+                   .domain([0, 10])
+                   .range([innerHeight, 0]);
+
+    var x_axis = d3.axisBottom()
+                   .scale(xscale);
+
+    svg.append("g")
+            .attr("transform", "translate(0, 280)")
+            .call(x_axis);
+            
+    svg.selectAll("circle")
+        .data(dataset)
+        .enter().append("circle")
+        .attr("class", "circle")
+        .attr("r", 3)
+        .attr("cx", d => xscale(d))
+        .attr("cy", (d,i)=>yscale(i+1)+30);
+
+        
+        
+</script>
+  </body>
+</html>
