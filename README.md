@@ -1,5 +1,5 @@
 # Exploratory-Data-Analysis-and-Visualization
 
-Tool:
+Tools:
 
 R; D3
