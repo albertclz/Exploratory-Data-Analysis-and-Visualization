@@ -1,0 +1,160 @@
+---
+title: "Homework 3"
+author: 'Jie Lu, UNI: jl4961'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE,
+                      message = FALSE, 
+                      cache = TRUE)
+```
+
+**$1.$ Parallel Coordinates**
+
+
+$(a)$ Draw a parallel coordinates plot of the data in "ManhattanCDResults.csv" in the data folder on CourseWorks. (Original data source and additional information about the data can be found here:  https://cbcny.org/research/nyc-resident-feedback-survey-community-district-results). Your plot should have one line for each of the twelve Manhattan community districts in the dataset. 
+
+```{r fig.height=10, fig.width=20,fig.align="center"}
+library(GGally)
+library(dplyr)
+library(MASS)
+#devtools::install_github("timelyportfolio/parcoords")
+library(parcoords)
+myCD <- read.csv(file="ManhattanCDResults.csv", header=TRUE)
+myCD <- myCD[-2]
+myCD <- t(myCD)[-1,]
+myCD = as.data.frame(myCD)
+
+transfer<- function(x){result<-as.numeric(sub("%", "", x))/100}
+for (col in colnames(myCD)){myCD[col] = lapply(myCD[col], transfer)}
+
+myCD$index <- rownames(myCD)
+ggparcoord(myCD,column=1:45,groupColumn = "index",scale = "globalminmax")
+```
+
+
+
+
+$(b)$ Do there appear to be greater differences across *indicators* or across *community districts*? (In other words, are Manhattan community districts more alike or more different in how their citizens express their satisfaction with city life? 
+
+
+It really depends on what the indicators are. For most indicators, their satisfaction are in the same scale of domain, such as indicator No.7 and No.24. For some indicators, people's ideas are not from the same cloth such as indicator No.1, No.17 and No.41. However, in general they have a similar pattern or trend across different indicators.
+
+
+$(c)$ Which indicators have wide distributions (great variety) in responses?
+
+
+Through our observation, indicators No.1, No.19, No.20 and No.39 have wide distribution. Let's quickly plot a barchart to check it. And the result is consistent with our observation.
+
+
+```{r}
+barplot(sapply(myCD[,1:45],var))
+```
+
+$(d)$ Does there appear to be a correlation between districts and overall satisfaction?  In order words, do some districts report high satisfaction on many indicators and some report low satisfaction on many indicators or are the results more mixed? (Hint: a different color for each community district helps identify these trends). 
+
+
+Yes, by checking different line color, we can see that cd7 has high satisfaction on many indicators, while cd3, cd11, cd12 have relatively low satisfaction on many indicators.
+
+
+
+
+
+**$2.$ Mosaic Plots**
+
+Using the "Death2015.txt" data from the previous assignment, create a mosaic plot to identify whether `Age` is associated with `Place of Death`. Include only the top four `Age` categories. Treat `Age` as the independent variable and `Place of Death` as the dependent variable. (Hint: the dependent variable should be the last cut and it should be horizontal.) The labeling should be clear enough to identify what's what, that is, "good enough," not perfect. Do the variables appear to be associated? Describe briefly.
+
+
+```{r}
+library(vcd)
+data <- read.delim("Death2015.txt",fill = TRUE , header = TRUE)
+data <- data[c("Ten.Year.Age.Groups", "Place.of.Death")]
+data <- subset(data, data$Ten.Year.Age.Groups==c('55-64 years', '65-74 years', '75-84 years', '85+ years'))
+data$Ten.Year.Age.Groups <- factor(data$Ten.Year.Age.Groups)
+data$Place.of.Death <- factor(data$Place.of.Death)
+
+mosaic(data$Place.of.Death ~ data$Ten.Year.Age.Groups, data, direction = c('v', 'h'),rot_labels = c(45, 45))
+```
+
+
+From the mosaic plot, we can see that the place of death and the age is not associated. For different age groups, they have very similar percentage locate in the different places of death. 
+
+
+
+**$3.$ Time Series**
+
+$(a)$ Use the `tidyquant` package to collect stock information on four stocks of your choosing.  Create a line chart showing the closing price of the four stocks on the same graph, employing a different color for each stock.
+
+```{r}
+library(tidyquant)
+name = c("FB", "MSFT", "AMZN","GOOGL")
+stock = tq_get(name, get = "stock.prices")
+ggplot(stock, aes(date, close, color = symbol))+geom_line()
+```
+
+$(b)$ Transform the data so each stock begins at 100 and replot. Do you learn anything new that wasn't visible in part (a)?
+
+```{r}
+library(tidyverse)
+stock2 = stock %>% 
+  group_by(symbol) %>%
+  mutate(standard = 100*close/close[1]) %>% 
+  ungroup()
+
+ggplot(stock2, aes(date, standard, color = symbol)) + geom_line()
+```
+
+
+After standardizing,  we can observe the relative increase and decrease more clearly in the 10 year period. Since in this graph, all lines start from the some point 100, till year 2018, Amazon has the largest relative stock price increase, while Microsoft has the smallest relative increase.
+
+
+**$4.$ Missing Data**
+
+For this question, explore the New York State Feb 2017 snow accumulation dataset available in the data folder on CourseWorks: "NY-snowfall-201702.csv". The original data source is here: https://www.ncdc.noaa.gov/snow-and-ice/daily-snow/
+
+
+$(a)$ Show missing patterns graphically.
+
+```{r message=FALSE}
+library(mi)
+library(extracat)
+
+mysnow <- read.csv(file="NY-snowfall-201702.csv", header=TRUE,skip=1,
+                    na.strings="M")
+visna(mysnow[-c(1:6)])
+```
+
+
+$(b)$ Is the percent of missing values consistent across days of the month, or is there variety? 
+
+```{r}
+mysnow<-mysnow[-c(1:6)]
+percent <- colSums(is.na(mysnow))/nrow(mysnow)
+plot(percent, type = 'l')
+```
+
+There is variety.
+
+
+$(c)$ Is the percent of missing values consistent across collection stations, or is there variety?
+
+```{r}
+percent2=rowSums(is.na(mysnow))/ncol(mysnow)
+barplot(percent2)
+```
+
+There is variety.
+
+$(d)$ Is the daily average snowfall correlated with the daily missing values percent?  On the basis of these results, what is your assessment of the reliability of the data to capture true snowfall patterns? In other words, based on what you've discovered, do you think that the missing data is highly problematic, or not?
+```{r}
+dailymissing <- colSums(is.na(mysnow))/nrow(mysnow)
+mysnowmat <- data.matrix(mysnow)
+avgsnow <- colMeans(mysnowmat, na.rm = TRUE)
+View(avgsnow)
+
+scatter.smooth(avgsnow,dailymissing)
+```
+
+
+Yes, from the scatter plot we can see that high percentage missing column is correlated with low average snow fall, which makes the missing data problem not so significant, and therefore would not cause a big trouble.
